@@ -16,6 +16,6 @@ class GameService(private val gameRepository: GameRepository) {
 
     fun updateGame(game: Game): Game = gameRepository.save(game)
 
-    fun findById(gameId: Long): Optional<Game> = gameRepository.findById(gameId)
+    fun findGameById(gameId: Long): Optional<Game> = gameRepository.findById(gameId)
 
 }

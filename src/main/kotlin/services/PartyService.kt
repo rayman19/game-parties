@@ -9,7 +9,7 @@ interface PartyRepository : JpaRepository<Party, Long> {
 
     fun findByGame(game: Game): List<Party>
 
-    fun findByUsersContaining(user: User): List<Party>
+    fun findByPlayersContaining(player: Player): List<Party>
 
 }
 
@@ -20,22 +20,22 @@ class PartyService(private val partyRepository: PartyRepository) {
 
     fun deleteParty(partyId: Long) = partyRepository.deleteById(partyId)
 
-    fun addUserToParty(partyId: Long, user: User): Party {
+    fun addPlayerToParty(partyId: Long, player: Player): Party {
         val party = partyRepository.findById(partyId).orElseThrow { EntityNotFoundException() }
         // party.users.add(user)
         return partyRepository.save(party)
     }
 
-    fun removeUserFromParty(partyId: Long, user: User): Party {
+    fun removePlayerFromParty(partyId: Long, player: Player): Party {
         val party = partyRepository.findById(partyId).orElseThrow { EntityNotFoundException() }
         // party.users.remove(user)
         return partyRepository.save(party)
     }
 
-    fun findAvailablePartiesForUser(user: User): List<Party> =
-        partyRepository.findByUsersContaining(user)
+    fun findAvailablePartiesForPlayer(player: Player): List<Party> =
+        partyRepository.findByPlayersContaining(player)
 
-    fun findAvailablePartiesForUserByGame(user: User, game: Game): List<Party> =
-        partyRepository.findByGame(game).filter { it.users.contains(user) }
+    fun findAvailablePartiesForPlayerByGame(player: Player, game: Game): List<Party> =
+        partyRepository.findByGame(game).filter { it.players.contains(player) }
 
 }

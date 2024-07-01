@@ -18,6 +18,6 @@ class GameController(private val gameService: GameService) {
     fun updateGame(@RequestBody game: Game): Game = gameService.updateGame(game)
 
     @GetMapping("/{id}")
-    fun findById(@PathVariable id: Long) = gameService.findById(id)
+    fun findGameById(@PathVariable id: Long) = gameService.findGameById(id)
 
 }
