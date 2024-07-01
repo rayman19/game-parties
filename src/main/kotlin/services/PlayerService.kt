@@ -1,6 +1,6 @@
-package services
+package com.example.game_parties.services
 
-import models.Player
+import com.example.game_parties.models.Player
 import org.springframework.data.jpa.repository.JpaRepository
 import org.springframework.stereotype.Service
 import java.util.*

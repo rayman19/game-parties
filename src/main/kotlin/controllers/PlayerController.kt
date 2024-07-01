@@ -1,8 +1,15 @@
-package controllers
+package com.example.game_parties.controllers
 
-import models.Player
+import com.example.game_parties.services.PlayerService
+import com.example.game_parties.models.Player
 import org.springframework.web.bind.annotation.*
-import services.PlayerService
+
+@RestController
+@RequestMapping("/hello")
+class HelloWorld {
+    @GetMapping
+    fun helloWorld() = "Hello World!"
+}
 
 @RestController
 @RequestMapping("/users")

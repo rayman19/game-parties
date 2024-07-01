@@ -1,9 +1,9 @@
-package services
+package com.example.game_parties.services
 
-import jakarta.persistence.EntityNotFoundException
-import models.*
+import com.example.game_parties.models.*
 import org.springframework.data.jpa.repository.JpaRepository
 import org.springframework.stereotype.Service
+import jakarta.persistence.EntityNotFoundException
 
 interface PartyRepository : JpaRepository<Party, Long> {
 

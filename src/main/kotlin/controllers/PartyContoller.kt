@@ -1,12 +1,11 @@
 package controllers
 
-import models.Party
-import models.Player
+import com.example.game_parties.models.*
+import com.example.game_parties.services.PlayerService
+import com.example.game_parties.services.GameService
+import com.example.game_parties.services.PartyService
 import org.springframework.data.crossstore.ChangeSetPersister
 import org.springframework.web.bind.annotation.*
-import services.GameService
-import services.PartyService
-import services.PlayerService
 
 @RestController
 @RequestMapping("/parties")

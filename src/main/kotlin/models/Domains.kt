@@ -1,6 +1,8 @@
-package models
+package com.example.game_parties.models
 
+import com.fasterxml.jackson.annotation.JsonFormat
 import jakarta.persistence.*
+import jakarta.validation.constraints.Min
 import java.time.LocalDateTime
 
 @Entity
@@ -10,18 +12,15 @@ data class Player(
 
     val username: String,
 
-    @ManyToOne
-    @JoinColumn(name = "active_party_id")
-    val activeParty: Party? = null,
-
-    @OneToMany(mappedBy = "player")
-    val games: List<Game> = mutableListOf(),
+    val activeParty: Long? = null,
 
     @Column(nullable = false)
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     val createdAt: LocalDateTime = LocalDateTime.now(),
 
     @Column(nullable = false)
-    val updatedAt: LocalDateTime = LocalDateTime.now()
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
+    val updatedAt: LocalDateTime = LocalDateTime.now(),
 )
 
 @Entity
@@ -31,13 +30,16 @@ data class Game(
 
     val name: String,
 
+    @Min(2)
     val maxPlayers: Int,
 
     @Column(nullable = false)
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     val createdAt: LocalDateTime = LocalDateTime.now(),
 
     @Column(nullable = false)
-    val updatedAt: LocalDateTime = LocalDateTime.now()
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
+    val updatedAt: LocalDateTime = LocalDateTime.now(),
 )
 
 @Entity
@@ -53,8 +55,10 @@ data class Party(
     val players: List<Player> = mutableListOf(),
 
     @Column(nullable = false)
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     val createdAt: LocalDateTime = LocalDateTime.now(),
 
     @Column(nullable = false)
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     val updatedAt: LocalDateTime = LocalDateTime.now()
 )
