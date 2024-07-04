@@ -51,7 +51,12 @@ data class Party(
     @JoinColumn(name = "game_id")
     val game: Game,
 
-    @OneToMany(mappedBy = "activeParty")
+    @ManyToMany
+    @JoinTable(
+        name = "party_players",
+        joinColumns = [JoinColumn(name = "party_id")],
+        inverseJoinColumns = [JoinColumn(name = "user_id")]
+    )
     val players: List<Player> = mutableListOf(),
 
     @Column(nullable = false)

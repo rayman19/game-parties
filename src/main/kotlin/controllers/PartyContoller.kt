@@ -1,11 +1,16 @@
-package controllers
+package com.example.game_parties.controllers
 
+import com.example.game_parties.exceptions.GameNotFound
+import com.example.game_parties.exceptions.PlayerNotFound
 import com.example.game_parties.models.*
 import com.example.game_parties.services.PlayerService
 import com.example.game_parties.services.GameService
 import com.example.game_parties.services.PartyService
 import org.springframework.data.crossstore.ChangeSetPersister
+import org.springframework.http.HttpStatus
+import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.*
+import java.util.*
 
 @RestController
 @RequestMapping("/parties")
@@ -15,31 +20,63 @@ class PartyController(
     private val gameService: GameService
 ) {
 
-    @PostMapping
-    fun addParty(@RequestBody party: Party): Party = partyService.addParty(party)
+    @PostMapping("/{gameId}")
+    fun createParty(@PathVariable gameId: Long): ResponseEntity<Party> {
+        val game = gameService.findGameById(gameId)
+            .orElseThrow { GameNotFound }
+
+        val party = Party(
+            game = game,
+            players = mutableListOf()
+        )
+
+        val savedParty = partyService.addParty(party)
+        return ResponseEntity.status(HttpStatus.CREATED).body(savedParty)
+    }
+
+    // Старая реализация
+/*    @PostMapping
+    fun addParty(@RequestBody party: Party): ResponseEntity<String> {
+        val addedParty = partyService.addParty(party)
+        return ResponseEntity.ok("Party успешно добавлена с id: ${addedParty.id}")
+    }*/
 
     @DeleteMapping("/{id}")
-    fun deleteParty(@PathVariable id: Long) = partyService.deleteParty(id)
+    fun deleteParty(@PathVariable id: Long): ResponseEntity<String> {
+        partyService.deleteParty(id)
+        return ResponseEntity.ok("Party с id $id успешно удалена")
+    }
 
-    @PutMapping("/{partyId}/users")
-    fun addPlayerToParty(@PathVariable partyId: Long, @RequestBody player: Player): Party =
-        partyService.addPlayerToParty(partyId, player)
+    @GetMapping("/{id}")
+    fun findPartyById(@PathVariable id: Long): ResponseEntity<Optional<Party>> {
+        val party = partyService.findPartyById(id)
+        return ResponseEntity.ok(party)
+    }
 
-    @DeleteMapping("/{partyId}/users")
-    fun removePlayerFromParty(@PathVariable partyId: Long, @RequestBody player: Player): Party =
-        partyService.removePlayerFromParty(partyId, player)
+    @PutMapping("/{partyId}/users/{playerId}")
+    fun addPlayerToParty(@PathVariable partyId: Long, @PathVariable playerId: Long): ResponseEntity<String> {
+        val updatedParty = partyService.addPlayerToParty(partyId, playerId)
+        return ResponseEntity.ok("Игрок с id $playerId успешно добавлен в Party с id $partyId")
+    }
+
+    @DeleteMapping("/{partyId}/users/{playerId}")
+    fun removePlayerFromParty(@PathVariable partyId: Long, @PathVariable playerId: Long): ResponseEntity<String> {
+        val updatedParty = partyService.removePlayerFromParty(partyId, playerId)
+        return ResponseEntity.ok("Игрок с id $playerId успешно удален из Party с id $partyId")
+    }
 
     @GetMapping("/available")
-    fun findAvailablePartiesForPlayer(@RequestParam playerId: Long): List<Party> {
-        val user = playerService.findPlayerById(playerId).orElseThrow { ChangeSetPersister.NotFoundException() }
-        return partyService.findAvailablePartiesForPlayer(user)
+    fun findAvailablePartiesForPlayer(@RequestParam playerId: Long): ResponseEntity<List<Party>> {
+        val user = playerService.findPlayerById(playerId).orElseThrow { PlayerNotFound }
+        val availableParties = partyService.findAvailablePartiesForPlayer(user)
+        return ResponseEntity.ok(availableParties)
     }
 
     @GetMapping("/available/by-game")
-    fun findAvailablePartiesForPlayerByGame(@RequestParam playerId: Long, @RequestParam gameId: Long): List<Party> {
-        val user = playerService.findPlayerById(playerId).orElseThrow { ChangeSetPersister.NotFoundException() }
-        val game = gameService.findGameById(gameId).orElseThrow { ChangeSetPersister.NotFoundException() }
-        return partyService.findAvailablePartiesForPlayerByGame(user, game)
+    fun findAvailablePartiesForPlayerByGame(@RequestParam playerId: Long, @RequestParam gameId: Long): ResponseEntity<List<Party>> {
+        val user = playerService.findPlayerById(playerId).orElseThrow { PlayerNotFound }
+        val game = gameService.findGameById(gameId).orElseThrow { GameNotFound }
+        val availableParties = partyService.findAvailablePartiesForPlayerByGame(user, game)
+        return ResponseEntity.ok(availableParties)
     }
-
 }
