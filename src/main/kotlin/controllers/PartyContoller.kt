@@ -6,7 +6,6 @@ import com.example.game_parties.models.*
 import com.example.game_parties.services.PlayerService
 import com.example.game_parties.services.GameService
 import com.example.game_parties.services.PartyService
-import org.springframework.data.crossstore.ChangeSetPersister
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.*
@@ -34,13 +33,6 @@ class PartyController(
         return ResponseEntity.status(HttpStatus.CREATED).body(savedParty)
     }
 
-    // Старая реализация
-/*    @PostMapping
-    fun addParty(@RequestBody party: Party): ResponseEntity<String> {
-        val addedParty = partyService.addParty(party)
-        return ResponseEntity.ok("Party успешно добавлена с id: ${addedParty.id}")
-    }*/
-
     @DeleteMapping("/{id}")
     fun deleteParty(@PathVariable id: Long): ResponseEntity<String> {
         partyService.deleteParty(id)
@@ -56,6 +48,7 @@ class PartyController(
     @PutMapping("/{partyId}/users/{playerId}")
     fun addPlayerToParty(@PathVariable partyId: Long, @PathVariable playerId: Long): ResponseEntity<String> {
         val updatedParty = partyService.addPlayerToParty(partyId, playerId)
+        println(updatedParty)
         return ResponseEntity.ok("Игрок с id $playerId успешно добавлен в Party с id $partyId")
     }
 
@@ -65,15 +58,15 @@ class PartyController(
         return ResponseEntity.ok("Игрок с id $playerId успешно удален из Party с id $partyId")
     }
 
-    @GetMapping("/available")
-    fun findAvailablePartiesForPlayer(@RequestParam playerId: Long): ResponseEntity<List<Party>> {
+    @GetMapping("/available/{playerId}")
+    fun findAvailablePartiesForPlayer(@PathVariable playerId: Long): ResponseEntity<List<Party>> {
         val user = playerService.findPlayerById(playerId).orElseThrow { PlayerNotFound }
         val availableParties = partyService.findAvailablePartiesForPlayer(user)
         return ResponseEntity.ok(availableParties)
     }
 
-    @GetMapping("/available/by-game")
-    fun findAvailablePartiesForPlayerByGame(@RequestParam playerId: Long, @RequestParam gameId: Long): ResponseEntity<List<Party>> {
+    @GetMapping("/available/{playerId}/by-game/{gameId}")
+    fun findAvailablePartiesForPlayerByGame(@PathVariable playerId: Long, @PathVariable gameId: Long): ResponseEntity<List<Party>> {
         val user = playerService.findPlayerById(playerId).orElseThrow { PlayerNotFound }
         val game = gameService.findGameById(gameId).orElseThrow { GameNotFound }
         val availableParties = partyService.findAvailablePartiesForPlayerByGame(user, game)

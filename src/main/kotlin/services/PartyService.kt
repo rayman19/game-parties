@@ -5,7 +5,6 @@ import com.example.game_parties.exceptions.PlayerNotFound
 import com.example.game_parties.models.*
 import org.springframework.data.jpa.repository.JpaRepository
 import org.springframework.stereotype.Service
-import jakarta.persistence.EntityNotFoundException
 import java.util.*
 
 interface PartyRepository : JpaRepository<Party, Long> {
@@ -28,29 +27,33 @@ class PartyService(
 
     fun findPartyById(partyId: Long): Optional<Party> = partyRepository.findById(partyId)
 
-    fun findPlayerInParty(party: Party, gameId: Long): Player? =
-        party.players.find { it.id == gameId }
+    fun findPlayerInParty(party: Party, playerId: Long): Player? =
+        party.players.find { it.id == playerId }
 
     fun addPlayerToParty(partyId: Long, playerId: Long): Party {
         val party = findPartyById(partyId).orElseThrow { PartyNotFound }
-        val player = findPlayerInParty(party, playerId)
-        if (player == null) {
+        val partyPlayer = findPlayerInParty(party, playerId)
+        if (partyPlayer == null) {
+            val newPlayer = playerService.findPlayerById(playerId).orElseThrow { PlayerNotFound }
+            val updatedParty = party.copy(players = party.players + newPlayer)
+            partyRepository.save(updatedParty)
+            return updatedParty
+        }
+        return party
+    }
+
+    fun removePlayerFromParty(partyId: Long, playerId: Long): Party {
+        val party = partyRepository.findById(partyId).orElseThrow { PartyNotFound }
+        val findedPlayer = findPlayerInParty(party, playerId)
+        if (findedPlayer == null) {
             PlayerNotFound
             return party
         }
         else {
-            val updatedParty = party.copy(players = party.players + player)
+            val updatedParty = party.copy(players = party.players - findedPlayer)
             partyRepository.save(updatedParty)
             return updatedParty
         }
-    }
-
-    fun removePlayerFromParty(partyId: Long, playerId: Long): Party {
-        val party = partyRepository.findById(partyId).orElseThrow { EntityNotFoundException() }
-        val player = playerService.findPlayerById(playerId).orElseThrow { EntityNotFoundException() }
-
-        //party.players.remove(player)
-        return partyRepository.save(party)
     }
 
     fun findAvailablePartiesForPlayer(player: Player): List<Party> =
